@@ -47,7 +47,7 @@ public class QGraph implements Graph {
     ElementHelper.legalPropertyKeyValueArray(keyValues);
     Object idValue = ElementHelper.getIdValue(keyValues).orElse(null);
     final String label = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL);
-    QVertex qVertex = new QVertex((Long)idValue, label);
+    QVertex qVertex = new QVertex(QGraphUtil.getId(idValue), label);
     qVertexMapper.insert(qVertex);
     return qVertex;
   }
@@ -69,7 +69,7 @@ public class QGraph implements Graph {
     } else {
       Stream<Object> stream = Stream.of(vertexIds);
       return stream
-          .map(id -> qVertexMapper.getById((Long)id))
+          .map(id -> qVertexMapper.getById(QGraphUtil.getId(id)))
           .map(qVertex -> (Vertex)qVertex).iterator();
     }
   }
@@ -81,7 +81,7 @@ public class QGraph implements Graph {
     } else {
       Stream<Object> stream = Stream.of(edgeIds);
       return stream
-          .map(id -> qEdgeMapper.getById((Long)id))
+          .map(id -> qEdgeMapper.getById(QGraphUtil.getId(id)))
           .map(qEdge -> (Edge)qEdge).iterator();
     }
   }

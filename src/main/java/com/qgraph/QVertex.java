@@ -22,7 +22,7 @@ public class QVertex extends AbstractElement implements Vertex {
     ElementHelper.validateLabel(label);
     ElementHelper.legalPropertyKeyValueArray(keyValues);
     Object idValue = ElementHelper.getIdValue(keyValues).orElse(null);
-    QEdge edge = new QEdge((Long)idValue, label, (Long)inVertex.id(), (Long)id());
+    QEdge edge = new QEdge(QGraphUtil.getId(idValue), label, QGraphUtil.getId(inVertex.id()), QGraphUtil.getId(id()));
     qEdgeMapper.insert(edge);
     return edge;
   }
@@ -35,12 +35,22 @@ public class QVertex extends AbstractElement implements Vertex {
   @Override
   public Iterator<Edge> edges(Direction direction, String... edgeLabels) {
     List<QEdge> qEdgeList;
-    if (Direction.IN == direction) {
-      qEdgeList = qEdgeMapper.getInEdgesByVertexId((Long)id());
-    } else if (Direction.OUT == direction) {
-      qEdgeList = qEdgeMapper.getOutEdgesByVertexId((Long)id());
+    if (null == edgeLabels || edgeLabels.length == 0) {
+      if (Direction.IN == direction) {
+        qEdgeList = qEdgeMapper.getInEdgesByVertexId(QGraphUtil.getId(id()));
+      } else if (Direction.OUT == direction) {
+        qEdgeList = qEdgeMapper.getOutEdgesByVertexId(QGraphUtil.getId(id()));
+      } else {
+        qEdgeList = qEdgeMapper.getBothEdgesByVertexId(QGraphUtil.getId(id()));
+      }
     } else {
-      qEdgeList = qEdgeMapper.getBothEdgesByVertexId((Long)id());
+      if (Direction.IN == direction) {
+        qEdgeList = qEdgeMapper.getInEdgesByVertexIdLabels(QGraphUtil.getId(id()), edgeLabels);
+      } else if (Direction.OUT == direction) {
+        qEdgeList = qEdgeMapper.getOutEdgesByVertexIdLabels(QGraphUtil.getId(id()), edgeLabels);
+      } else {
+        qEdgeList = qEdgeMapper.getBothEdgesByVertexIdLabels(QGraphUtil.getId(id()), edgeLabels);
+      }
     }
     return qEdgeList.stream().map(qEdge -> (Edge)qEdge).iterator();
   }
@@ -48,12 +58,22 @@ public class QVertex extends AbstractElement implements Vertex {
   @Override
   public Iterator<Vertex> vertices(Direction direction, String... edgeLabels) {
     List<QVertex> qVertexList;
-    if (Direction.IN == direction) {
-      qVertexList = qVertexMapper.getInVertexIdsById((Long)id());
-    } else if (Direction.OUT == direction) {
-      qVertexList = qVertexMapper.getOutVertexIdsById((Long)id());
+    if (null == edgeLabels || edgeLabels.length == 0) {
+      if (Direction.IN == direction) {
+        qVertexList = qVertexMapper.getInVertexIdsById(QGraphUtil.getId(id()));
+      } else if (Direction.OUT == direction) {
+        qVertexList = qVertexMapper.getOutVertexIdsById(QGraphUtil.getId(id()));
+      } else {
+        qVertexList = qVertexMapper.getBothVertexIdsById(QGraphUtil.getId(id()));
+      }
     } else {
-      qVertexList = qVertexMapper.getBothVertexIdsById((Long)id());
+      if (Direction.IN == direction) {
+        qVertexList = qVertexMapper.getInVertexIdsByIdEdgeLabels(QGraphUtil.getId(id()), edgeLabels);
+      } else if (Direction.OUT == direction) {
+        qVertexList = qVertexMapper.getOutVertexIdsByIdEdgeLabels(QGraphUtil.getId(id()), edgeLabels);
+      } else {
+        qVertexList = qVertexMapper.getBothVertexIdsByIdEdgeLabels(QGraphUtil.getId(id()), edgeLabels);
+      }
     }
     return qVertexList.stream().map(qVertex -> (Vertex)qVertex).iterator();
   }
@@ -81,5 +101,10 @@ public class QVertex extends AbstractElement implements Vertex {
   @Override
   public <V> Iterator<VertexProperty<V>> properties(String... propertyKeys) {
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return "Vertex(id=" + id + ")";
   }
 }

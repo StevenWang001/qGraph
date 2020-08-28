@@ -80,4 +80,9 @@ public class QEdge extends AbstractElement implements Edge {
   public void setDestId(Long destId) {
     this.destId = destId;
   }
+
+  @Override
+  public String toString() {
+    return "Edge(src_id=" + srcId + ", dest_id=" + destId + ", label=" + label + ")";
+  }
 }
